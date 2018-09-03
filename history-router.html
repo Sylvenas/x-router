@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/about">about</a></li>
+            <li><a href="/topics">topics</a></li>
+        </ul>
+        <div id="content"></div>
+    </div>
+    <script>
+        class Router {
+            constructor() {
+                this.routes = {};
+                this.currentUrl = '';
+            }
+            // routes 用来存放不同路由对应的回调函数
+            route(path, callback) {
+                this.routes[path] = callback || function () { };
+            }
+            updateView() {
+                this.currentUrl = location.pathname || '/';
+                // 如果存在该路径，则执行该路径对应的回调函数
+                this.routes[this.currentUrl] && this.routes[this.currentUrl]();
+            }
+            // init 用来初始化路由，在 load 事件发生后刷新页面，
+            // 并且绑定 hashchange 事件，当 hash 值改变时触发对应回调函数
+            init() {
+                // 该函数对a标签进行监听，并阻止默认事件，触发更新
+                this._bindLink();
+                window.addEventListener('popstate', e => {
+                    this.updateView(window.location.pathname);
+                });
+                window.addEventListener('load', () => this.updateView('/'), false);
+            }
+            _bindLink() {
+                const allLink = document.querySelectorAll('a[href]');
+                for (let i = 0, len = allLink.length; i < len; i++) {
+                    const current = allLink[i];
+                    current.addEventListener(
+                        'click',
+                        e => {
+                            e.preventDefault();
+                            const url = current.getAttribute('href');
+                            history.pushState({}, null, url);
+                            this.updateView(url);
+                        },
+                        false
+                    );
+                }
+            }
+        }
+
+        const router = new Router();
+        router.init();
+        router.route('/', function () {
+            document.getElementById('content').innerHTML = 'Home';
+        });
+        router.route('/about', function () {
+            document.getElementById('content').innerHTML = 'About';
+        });
+        router.route('/topics', function () {
+            document.getElementById('content').innerHTML = 'Topics';
+        });
+    </script>
+</body>
+
+</html>

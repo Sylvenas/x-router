@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <ul>
+            <li><a href="#/">home</a></li>
+            <li><a href="#/about">about</a></li>
+            <li><a href="#/topics">topics</a></li>
+        </ul>
+        <div id="content"></div>
+    </div>
+    <script>
+        class Router {
+            constructor() {
+                this.routes = {};
+                this.currentUrl = '';
+            }
+            // routes 用来存放不同路由对应的回调函数
+            route(path, callback) {
+                this.routes[path] = callback || function () { };
+            }
+            updateView() {
+                this.currentUrl = location.hash.slice(1) || '/';
+                // 如果存在该路径，则执行该路径对应的回调函数
+                this.routes[this.currentUrl] && this.routes[this.currentUrl]();
+            }
+            // init 用来初始化路由，在 load 事件发生后刷新页面，
+            // 并且绑定 hashchange 事件，当 hash 值改变时触发对应回调函数
+            init() {
+                window.addEventListener('load', this.updateView.bind(this), false);
+                window.addEventListener('hashchange', this.updateView.bind(this), false);
+            }
+        }
+
+        const router = new Router();
+        router.init();
+        router.route('/', function () {
+            document.getElementById('content').innerHTML = 'Home';
+        });
+        router.route('/about', function () {
+            document.getElementById('content').innerHTML = 'About';
+        });
+        router.route('/topics', function () {
+            document.getElementById('content').innerHTML = 'Topics';
+        });
+
+    </script>
+</body>
+
+</html>
